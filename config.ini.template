@@ -1,0 +1,6 @@
+[OPENAI]
+key = s
+base = https://api.gptsapi.net/v1
+[CLAUDE]
+key = sk-
+base = https://api.gptsapi.net/v1

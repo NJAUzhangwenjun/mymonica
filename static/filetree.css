@@ -1,0 +1,70 @@
+ /* 文件树样式 */
+  .file-tree-container {
+      width: 20%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      background-color: #f8f9fa;
+  }
+
+  .file-tree-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      background-color: #4a00e0;
+      color: white;
+  }
+
+  .file-tree-header h3 {
+      margin: 0;
+      font-size: 18px;
+  }
+
+  #refresh-tree-button {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 20px;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+  }
+
+  #refresh-tree-button:hover {
+      transform: rotate(180deg);
+  }
+
+  .file-tree {
+      flex-grow: 1;
+      overflow-y: auto;
+      padding: 20px;
+  }
+
+  .file-tree ul {
+      list-style-type: none;
+      padding-left: 20px;
+  }
+
+  .file-tree li {
+      margin-bottom: 10px;
+  }
+
+  .file-tree .folder {
+      cursor: pointer;
+      color: #4a00e0;
+      font-weight: 500;
+  }
+
+  .file-tree .file {
+      color: #333;
+  }
+
+  .file-tree .folder::before {
+      content: '📁';
+      margin-right: 5px;
+  }
+
+  .file-tree .file::before {
+      content: '📄';
+      margin-right: 5px;
+  }
