@@ -31,7 +31,7 @@ MyMonica 是一个强大的AI驱动的编码助手，基于Flask构建，集成�
 
 1. 克隆仓库:
 ```shell
-git clone https://github.com/your-username/mymonica.git
+git clone https://github.com/jingzhongwen/mymonica.git
 cd mymonica
 ```
 
