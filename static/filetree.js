@@ -143,9 +143,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const contextMenu = document.createElement('div');
     contextMenu.className = 'context-menu';
     contextMenu.innerHTML = `
-        <div id="create-option">创建</div>
         <div id="edit-option">编辑</div>
         <div id="delete-option">删除</div>
+        <div id="create-option">创建</div>
     `;
     document.body.appendChild(contextMenu);
 
@@ -191,25 +191,18 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('click', hideContextMenu);
 
     function openEditPage(filePath) {
-        // 获取屏幕尺寸
-        const screenWidth = window.screen.width;
-        const screenHeight = window.screen.height;
+        const editorDrawer = document.getElementById('editor-drawer');
+        const editorFrame = document.getElementById('editor-frame');
 
-        // 计算窗口尺寸（屏幕的80%）
-        const windowWidth = Math.round(screenWidth * 0.8);
-        const windowHeight = Math.round(screenHeight * 0.8);
-
-        // 计算窗口位置（居中）
-        const left = Math.round((screenWidth - windowWidth) / 2);
-        const top = Math.round((screenHeight - windowHeight) / 2);
-
-        // 构建窗口特性字符串
-        const windowFeatures = `width=${windowWidth},height=${windowHeight},left=${left},top=${top},resizable=yes,scrollbars=yes`;
-
-        // 打开编辑窗口
-        const editorWindow = window.open('editor.html?path=' + encodeURIComponent(filePath), '_blank', windowFeatures);
-        editorWindow.focus();
+        editorFrame.src = `editor.html?path=${encodeURIComponent(filePath)}`;
+        editorDrawer.classList.add('open');
     }
+
+    window.addEventListener('message', (event) => {
+        if (event.data === 'closeEditor') {
+            document.getElementById('editor-drawer').classList.remove('open');
+        }
+    });
 
 
     // 删除文件（示例逻辑）
