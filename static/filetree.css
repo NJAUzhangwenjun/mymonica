@@ -83,3 +83,20 @@
       content: '📄';
       margin-right: 5px;
   }
+.context-menu {
+    position: absolute;
+    background-color: white;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    display: none;
+}
+
+.context-menu div {
+    padding: 10px;
+    cursor: pointer;
+}
+
+.context-menu div:hover {
+    background-color: #f0f0f0;
+}

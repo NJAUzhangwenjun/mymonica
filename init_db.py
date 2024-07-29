@@ -1,6 +1,6 @@
 import sqlite3
 
-# 数据库初始化函数
+# 数据库初始化函数1
 def init_db():
     conn = sqlite3.connect('models.db')
     c = conn.cursor()

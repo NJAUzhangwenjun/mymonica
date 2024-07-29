@@ -124,4 +124,145 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // 修改上下文菜单的事件监听器
+    fileTree.addEventListener('contextmenu', (event) => {
+        event.preventDefault(); // 阻止默认右键菜单
+
+        const fileElement = event.target.closest('.file');
+        const folderElement = event.target.closest('.folder');
+        
+        if (fileElement || folderElement) {
+            const path = fileElement ? fileElement.getAttribute('data-path') : folderElement.getAttribute('data-path');
+            showContextMenu(event.pageX, event.pageY, path, fileElement ? 'file' : 'folder');
+        } else {
+            // 如果点击的是空白区域，不显示菜单
+            hideContextMenu();
+        }
+    });
+    // 创建上下文菜单
+    const contextMenu = document.createElement('div');
+    contextMenu.className = 'context-menu';
+    contextMenu.innerHTML = `
+        <div id="create-option">创建</div>
+        <div id="edit-option">编辑</div>
+        <div id="delete-option">删除</div>
+    `;
+    document.body.appendChild(contextMenu);
+
+    // 修改显示上下文菜单的函数
+    function showContextMenu(x, y, path, type) {
+        contextMenu.style.left = `${x}px`;
+        contextMenu.style.top = `${y}px`;
+        contextMenu.style.display = 'block';
+
+        const createOption = document.getElementById('create-option');
+        const editOption = document.getElementById('edit-option');
+        const deleteOption = document.getElementById('delete-option');
+
+        createOption.style.display = 'block';
+        createOption.onclick = () => {
+            hideContextMenu();
+            createNewFile(path, type);
+        };
+
+        if (type === 'file') {
+            editOption.style.display = 'block';
+            deleteOption.style.display = 'block';
+            editOption.onclick = () => {
+                hideContextMenu();
+                openEditPage(path);
+            };
+            deleteOption.onclick = () => {
+                hideContextMenu();
+                deleteFile(path);
+            };
+        } else {
+            editOption.style.display = 'none';
+            deleteOption.style.display = 'none';
+        }
+    }
+
+    // 隐藏上下文菜单
+    function hideContextMenu() {
+        contextMenu.style.display = 'none';
+    }
+
+    // 处理点击空白区域时隐藏菜单
+    window.addEventListener('click', hideContextMenu);
+
+    function openEditPage(filePath) {
+        // 获取屏幕尺寸
+        const screenWidth = window.screen.width;
+        const screenHeight = window.screen.height;
+
+        // 计算窗口尺寸（屏幕的80%）
+        const windowWidth = Math.round(screenWidth * 0.8);
+        const windowHeight = Math.round(screenHeight * 0.8);
+
+        // 计算窗口位置（居中）
+        const left = Math.round((screenWidth - windowWidth) / 2);
+        const top = Math.round((screenHeight - windowHeight) / 2);
+
+        // 构建窗口特性字符串
+        const windowFeatures = `width=${windowWidth},height=${windowHeight},left=${left},top=${top},resizable=yes,scrollbars=yes`;
+
+        // 打开编辑窗口
+        const editorWindow = window.open('editor.html?path=' + encodeURIComponent(filePath), '_blank', windowFeatures);
+        editorWindow.focus();
+    }
+
+
+    // 删除文件（示例逻辑）
+    async function deleteFile(filePath) {
+        if (confirm(`确定要删除文件 ${filePath} 吗？`)) {
+            try {
+                const response = await fetch(`/api/delete_file?path=${encodeURIComponent(filePath)}`, {
+                    method: 'DELETE',
+                });
+                if (!response.ok) {
+                    throw new Error('删除文件失败');
+                }
+                loadFileTree(); // 重新加载文件树
+            } catch (error) {
+                console.error('删除文件时出错:', error);
+                alert('删除文件时出错: ' + error.message);
+            }
+        }
+    }
+      // 添加创建新文件的函数
+    async function createNewFile(parentPath, parentType) {
+        const fileName = prompt("请输入新文件名:", "");
+        if (fileName) {
+            let fullPath;
+            if (parentType === 'folder') {
+                fullPath = `${parentPath}/${fileName}`;
+            } else {
+                // 如果父级是文件，我们需要获取其所在的目录
+                const lastSlashIndex = parentPath.lastIndexOf('/');
+                const parentDir = parentPath.substring(0, lastSlashIndex);
+                fullPath = `${parentDir}/${fileName}`;
+            }
+
+            try {
+                const response = await fetch('/api/create_file', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ path: fullPath }),
+                });
+
+                if (!response.ok) {
+                    throw new Error('创建文件失败');
+                }
+
+                loadFileTree(); // 重新加载文件树
+            } catch (error) {
+                console.error('创建文件时出错:', error);
+                alert('创建文件时出错: ' + error.message);
+            }
+        }
+    }
+
+
 });
