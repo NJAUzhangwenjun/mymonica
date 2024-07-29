@@ -2,11 +2,14 @@ from flask import Flask, request, jsonify, Response, send_from_directory
 import os
 from file_routes import file_blueprint
 from chat_routes import chat_blueprint  # 新增导入 chat_routes
+from model_routes import model_blueprint
 
 app = Flask(__name__, static_folder='static')
 
 # 注册文件路由蓝图
 app.register_blueprint(file_blueprint)
+
+app.register_blueprint(model_blueprint)
 
 # 注册聊天路由蓝图
 app.register_blueprint(chat_blueprint)  # 注册聊天蓝图

@@ -33,31 +33,35 @@
       margin-bottom: 10px;
   }
 
-    .bot-message pre {
-        background-color: #282c34;
-        padding: 15px;
-        border-radius: 6px;
-        overflow-x: auto;
-        position: relative;
-        margin: 10px 0;
-    }
-    
-    .bot-message pre code {
-        background-color: transparent;
-        color: #abb2bf;
-        padding: 0;
-        font-family: 'Consolas', 'Monaco', 'Andale Mono', 'Ubuntu Mono', monospace;
-        font-size: 14px;
-        line-height: 1.5;
-    }
-    
-    .bot-message code {
-        background-color: #282c34;
-        color: #abb2bf;
-        padding: 2px 4px;
-        border-radius: 4px;
-        font-family: 'Consolas', 'Monaco', 'Andale Mono', 'Ubuntu Mono', monospace;
-    }
+   /* 修改 bot-message pre 和 bot-message code 的背景颜色 */
+.bot-message pre {
+    background-color: #f7f7f7; /* 选择一个中性的浅色背景 */
+    padding: 15px;
+    border-radius: 6px;
+    overflow-x: auto;
+    position: relative;
+    margin: 10px 0;
+}
+
+.bot-message pre code {
+    background-color: transparent; /* 不需要深色 */
+    color: #333; /* 修改为深色字体，使其更易读 */
+    padding: 0;
+    font-family: 'Consolas', 'Monaco', 'Andale Mono', 'Ubuntu Mono', monospace;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.bot-message code {
+    background-color: #e8e8e8; /* 使用柔和的浅灰色 */
+    color: #333; /* 使用深色字体 */
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-family: 'Consolas', 'Monaco', 'Andale Mono', 'Ubuntu Mono', monospace;
+}
+
+/* 保持其他样式不变 */
+
 
   .bot-message img {
       max-width: 100%;

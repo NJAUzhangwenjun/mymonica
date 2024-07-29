@@ -3,67 +3,66 @@ import llm, agent.graphrag
 from flask import stream_with_context
 import sqlite3
 from sqlite3 import Error
+from agent.agent_factory import create_agent
 
 chat_blueprint = Blueprint('chat_routes', __name__)
 
 
-# 获取模型列表的新路由
-@chat_blueprint.route('/api/models', methods=['GET'])
-def get_models():
-  try:
-      conn = sqlite3.connect('models.db')
-      c = conn.cursor()
-      c.execute('SELECT id, name, stream FROM models')
-      models = [{'id': row[0], 'name': row[1], 'stream': bool(row[2])} for row in c.fetchall()]
-      conn.close()
-      return jsonify(models)
-  except Error as e:
-      print(e)
-      return jsonify({"error": "无法获取模型列表"}), 500
+def get_model_type(model_id):
+    try:
+        conn = sqlite3.connect('models.db')
+        c = conn.cursor()
+        c.execute('SELECT type FROM models WHERE id = ?', (model_id,))
+        result = c.fetchone()
+        conn.close()
+        return result[0] if result else None
+    except Error as e:
+        print(f"Database error: {e}")
+        return None
 
-# 聊天接口（流式）
 @chat_blueprint.route('/api/chat', methods=['POST'])
 def chat():
-  data = request.json
-  prompt = data.get('prompt', '')
-  model = data.get('model', 'C35')
+    data = request.json
+    prompt = data.get('prompt', '')
+    model = data.get('model', 'C35')
 
-  def generate():
-      if model.startswith('ollama/'):
-          model_value = model.split('ollama/')[1]  # 提取ollama/后的值
-          generator = llm.generate_ollama(prompt, model_value)
-      elif model == 'C35':
-          generator = llm.generateC35(prompt)
-      else:
-          generator = llm.generate(prompt, model=model)
+    model_type = get_model_type(model)
 
-      for chunk in generator:
-          if chunk is not None:
-              yield chunk
-          else:
-              yield "发生错误，无法生成响应。"
+    def generate():
+        if model_type == 'ollama':
+            generator = llm.generate_ollama(prompt, model)
+        elif model_type == 'claude' or model == 'C35':
+            generator = llm.generateC35(prompt)
+        elif model_type == 'openai':
+            generator = llm.generate(prompt, model=model)
+        else:
+            yield "错误：未知的模型类型。"
+            return
 
-  return Response(stream_with_context(generate()), content_type='text/plain')
+        for chunk in generator:
+            if chunk is not None:
+                yield chunk
+            else:
+                yield "发生错误，无法生成响应。"
 
-# graphrag 非流式聊天接口
-@chat_blueprint.route('/api/chat/graphrag', methods=['POST'])
-def chat_graphrag():
-  data = request.json
-  prompt = data.get('prompt', '')
-  
-  def get_last_user_message(prompt):
-      lines = prompt.strip().split('\n')
-      for line in reversed(lines):
-          if line.strip():
-              return line.strip()
-      return ""
+    return Response(stream_with_context(generate()), content_type='text/plain')
 
-  try:
-      last_message = get_last_user_message(prompt)
-      if not last_message:
-          return jsonify({"error": "No valid user message found in the prompt"}), 400
-      
-      response = agent.graphrag.chat(last_message)
-      return jsonify({"response": response})
-  except Exception as e:
-      return jsonify({"error": str(e)}), 500
+
+@chat_blueprint.route('/api/chat/agent', methods=['POST'])
+def chat_agent():
+    data = request.json
+    prompt = data.get('prompt', '')
+    agent_type = data.get('agent_type', 'graphrag')  # 默认使用 graphrag
+    
+    try:
+        agent = create_agent(agent_type)
+        last_message = get_last_user_message(prompt)
+        if not last_message:
+            return jsonify({"error": "No valid user message found in the prompt"}), 400
+        
+        response = agent.chat(last_message)
+        return jsonify({"response": response})
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

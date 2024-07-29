@@ -36,6 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const userInput = document.getElementById('user-input');
     const sendButton = document.getElementById('send-button');
     const newChatButton = document.getElementById('new-chat-button');
+    const modelSelect = document.getElementById('model-select');
     
 
     let conversationHistory = [];
@@ -208,32 +209,37 @@ document.addEventListener('DOMContentLoaded', () => {
             const selectedModelOption = document.getElementById('model-select').selectedOptions[0];
             const selectedModel = selectedModelOption.value;
             const isStreamSupported = selectedModelOption.dataset.stream === 'true';
+            const agentType = selectedModelOption.dataset.agentType;
+            const isAgent = agentType === 'agent';
+
     
             try {
                 let response;
                 let botMessageElement;
                 
-                if (!isStreamSupported) {
-                    // 使用非流式接口
-                    response = await fetch('/api/chat/graphrag', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            prompt: prompt,
-                            model: selectedModel
-                        }),
-                    });
-    
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
+                if (isAgent) {
+                    if(!isStreamSupported){
+                        // 使用 agent 接口
+                        response = await fetch('/api/chat/agent', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                prompt: prompt,
+                                agent_type: agentType
+                            }),
+                        });
+        
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+        
+                        const data = await response.json();
+                        botMessageElement = addMessage('', false,chatMessages, conversationHistory);
+                        botMessageElement.innerHTML = marked.parse(data.response);
+                        conversationHistory.push(`assistant:${data.response}`);
                     }
-    
-                    const data = await response.json();
-                    botMessageElement = addMessage('', false,chatMessages, conversationHistory);
-                    botMessageElement.innerHTML = marked.parse(data.response);
-                    conversationHistory.push(`assistant:${data.response}`);
                 } else {
                     // 使用流式接口
                     response = await fetch('/api/chat', {
@@ -296,10 +302,19 @@ document.addEventListener('DOMContentLoaded', () => {
     sendButton.addEventListener('click', sendMessage);
     newChatButton.addEventListener('click', startNewChat);
 
-    // 修改键盘事件处理
+    let isComposing = false;
+
+    userInput.addEventListener('compositionstart', () => {
+        isComposing = true;
+    });
+    
+    userInput.addEventListener('compositionend', () => {
+        isComposing = false;
+    });
+    
     userInput.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') {
-            if (e.shiftKey) {
+            if (e.shiftKey || isComposing) {
                 return;
             } else {
                 e.preventDefault();
@@ -307,6 +322,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
+
 
     function adjustTextareaHeight() {
         userInput.style.height = 'auto';

@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+    
     async function loadModelList() {
     	try {
     	  const response = await fetch('/api/models');
@@ -13,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     		option.value = model.id;
     		option.textContent = model.name;
     		option.dataset.stream = model.stream; // 存储stream信息
+            option.dataset.type = model.type;
     		modelSelect.appendChild(option);
     	  });
           let selectedModel = localStorage.getItem('selectedModel') || 'C35';

@@ -6,6 +6,7 @@ import subprocess
 import re
 import logging
 import configparser
+import ollama
 
 # 创建一个配置解析器
 config = configparser.ConfigParser()
@@ -16,48 +17,26 @@ config.read('config.ini')
 # 常量定义
 API_KEY = config['OPENAI']['key']  # 替换为您的实际 OpenAI API 密钥
 BASE_URL = config['OPENAI']['base']
-MAX_TOKENS = 10000
+CLAUDE_API_KEY = config['CLAUDE']['key']
+CLAUDE_BASE_URL = config['CLAUDE']['base']
+MAX_TOKENS = 4096
 DEFAULT_MODEL = "gpt-4o-mini"
 EMBEDDING_MODEL = "text-embedding-ada-002"  # OpenAI 最新的嵌入模型
 
 
-def generate_ollama(prompt, model="mistral", temperature=0):
-    url = "http://localhost:11434/api/generate"
+def generate_ollama(prompt: str, model: str = "gemma2") -> str:
+    try:
+        for chunk in ollama.generate(model=model, prompt=prompt, stream=True):
+            yield chunk['response']
+    except Exception as e:
+        print(f"发生错误: {str(e)}")
+        yield f"发生错误: {str(e)}"
 
-    # 创建请求数据
-    data = {
-        "model": model,
-        "prompt": prompt,
-        "options": {
-            "temperature": temperature
-        },
-        "stream": True  # 设置为 True 以支持流式响应
-    }
-
-    # 发送 POST 请求
-    with requests.post(url, json=data, stream=True) as response:
-        # 检查请求是否成功
-        response.raise_for_status()
-        
-        # 处理流式响应
-        for line in response.iter_lines():
-            if line:
-                # 解析响应内容（根据实际的 API 响应格式）
-                decoded_line = line.decode('utf-8')
-                try:
-                    json_line = json.loads(decoded_line)
-                    content = json_line.get('response')
-                    # 根据实际的 API 结构提取所需信息
-                    if content:
-                        yield content
-                except json.JSONDecodeError:
-                    print(f"解码错误：{decoded_line}")
-
-def generateC35(prompt, max_retries=5):
+def generateC35(prompt, model="claude-3-5-sonnet-20240620", max_retries=5):
     # API 密钥
-    api_key = API_KEY
+    api_key = CLAUDE_API_KEY
     # API 端点
-    url = f"{BASE_URL}/chat/completions"
+    url = f"{CLAUDE_BASE_URL}/chat/completions"
     # 请求头
     headers = {
         "Content-Type": "application/json",
@@ -66,7 +45,7 @@ def generateC35(prompt, max_retries=5):
     }
     # 请求体
     data = {
-        "model": "claude-3-5-sonnet-20240620",
+        "model": model,
         "max_tokens": 4096,
         "messages": [
             {

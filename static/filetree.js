@@ -90,4 +90,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 初始化文件树
     loadFileTree();
+    const setRootPathButton = document.getElementById('set-root-path-button');
+
+    // 设置根目录的事件监听器
+    setRootPathButton.addEventListener('click', () => {
+        const newRootPath = prompt('请输入新的根目录路径:', '');
+        if (newRootPath) {
+            // 向服务器发送请求以更新根目录
+            updateRootDirectory(newRootPath);
+        }
+    });
+    
+    // 更新根目录的函数
+    async function updateRootDirectory(newPath) {
+        try {
+            const response = await fetch('/api/set_root_directory', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ path: newPath }),
+            });
+    
+            if (!response.ok) {
+                throw new Error('无法设置根目录');
+            }
+    
+            // 重新加载文件树
+            loadFileTree();
+        } catch (error) {
+            console.error('设置根目录时出错:', error);
+            alert('设置根目录时出错: ' + error.message);
+        }
+    }
+
 });

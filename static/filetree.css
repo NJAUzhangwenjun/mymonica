@@ -7,14 +7,29 @@
       background-color: #f8f9fa;
   }
 
-  .file-tree-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 20px;
-      background-color: #4a00e0;
-      color: white;
-  }
+.file-tree-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center; /* 保持垂直居中 */
+    padding: 20px;
+    background-color: #4a00e0;
+    color: white;
+    gap: 10px; /* 控制按钮之间的间距 */
+}
+
+    .file-tree-header button {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+        margin-left: 10px; /* 添加左侧间距 */
+    }
+    
+    .file-tree-header button:hover {
+        transform: scale(1.1); /* 轻微放大效果 */
+    }
 
   .file-tree-header h3 {
       margin: 0;

@@ -4,3 +4,7 @@
 .ipynb_checkpoints
 __pycache__
 lancedb
+.idea
+.git
+.ipynb_checkpoints
+venv

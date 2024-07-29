@@ -1,0 +1,56 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    background-color: #f4f4f4;
+    height: 100vh;
+    margin: 0;
+}
+
+nav {
+    background: #333;
+    color: white;
+    padding: 15px;
+    width: 200px;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+}
+
+nav h2 {
+    margin: 0 0 20px;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    display: block;
+    padding: 10px;
+    transition: background 0.3s;
+}
+
+nav a:hover {
+    background: #575757;
+}
+
+.content {
+    padding: 20px;
+    flex-grow: 1;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: left;
+}
+
+th {
+    background: #eee;
+}
+
+#form {
+    margin-top: 20px;
+}
