@@ -28,28 +28,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (item.children && item.children.length > 0) {
                     const subUl = document.createElement('ul');
                     subUl.style.display = 'none'; // 默认隐藏子目录
-                    const filteredChildren = item.children.filter(subItem =>
-                        subItem.type === 'directory' ||
-                        /\.(py|js|java|html|css)$/i.test(subItem.name)
-                    );
-                    filteredChildren.forEach(subItem => {
+                    item.children.forEach(subItem => {
                         const subLi = document.createElement('li');
                         const subFullPath = `${fullPath}/${subItem.name}`;
                         subLi.innerHTML = `<span class="${subItem.type}" data-path="${subFullPath}">${subItem.name}</span>`;
                         subUl.appendChild(subLi);
                     });
-                    if (filteredChildren.length > 0) {
-                        li.appendChild(subUl);
-                        li.querySelector('.folder').addEventListener('click', (e) => {
-                            e.stopPropagation();
-                            subUl.style.display = subUl.style.display === 'none' ? 'block' : 'none';
-                        });
-                    }
+                    li.appendChild(subUl);
+                    li.querySelector('.folder').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        subUl.style.display = subUl.style.display === 'none' ? 'block' : 'none';
+                    });
                 }
-            } else if (/\.(py|js|java|html|css)$/i.test(item.name)) {
-                li.innerHTML = `<span class="file" data-path="${fullPath}">${item.name}</span>`;
             } else {
-                return; // 跳过不符合条件的文件
+                li.innerHTML = `<span class="file" data-path="${fullPath}">${item.name}</span>`;
             }
             ul.appendChild(li);
         });
@@ -62,23 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
     fileTree.addEventListener('click', async (event) => {
         if (event.target.classList.contains('file')) {
             const filePath = event.target.getAttribute('data-path');
-            try {
-                const response = await fetch(`/api/file_content?path=${encodeURIComponent(filePath)}`);
-                if (!response.ok) {
-                    throw new Error('无法加载文件内容');
-                }
-                const data = await response.json();
-                const content = data.content;
-                userInput.value = `${filePath}:\n\`\`\`\n${content}\n\`\`\`\n` + userInput.value;
-                adjustTextareaHeight();
-
-                // 将光标移动到输入框的末尾
-                userInput.focus();
-                userInput.setSelectionRange(userInput.value.length, userInput.value.length);
-            } catch (error) {
-                console.error('加载文件内容时出错:', error);
-                userInput.value = '加载文件内容时出错';
-            }
+            addFileContentToContext(filePath);
         }
     });
 
@@ -144,6 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
     contextMenu.className = 'context-menu';
     contextMenu.innerHTML = `
         <div id="edit-option">编辑</div>
+        <div id="add-to-context-option">添加为上下文</div>
         <div id="delete-option">删除</div>
         <div id="create-option">创建</div>
     `;
@@ -158,6 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const createOption = document.getElementById('create-option');
         const editOption = document.getElementById('edit-option');
         const deleteOption = document.getElementById('delete-option');
+        const addToContextOption = document.getElementById('add-to-context-option');
 
         createOption.style.display = 'block';
         createOption.onclick = () => {
@@ -176,9 +154,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 hideContextMenu();
                 deleteFile(path);
             };
+           addToContextOption.style.display = 'block';
+           addToContextOption.onclick = () => {
+              hideContextMenu();
+              addFileContentToContext(path);
+           };
         } else {
             editOption.style.display = 'none';
             deleteOption.style.display = 'none';
+            addToContextOption.style.display = 'none';
         }
     }
 
@@ -254,6 +238,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error('创建文件时出错:', error);
                 alert('创建文件时出错: ' + error.message);
             }
+        }
+    }
+  
+    async function addFileContentToContext(filePath) {
+        try {
+            const response = await fetch(`/api/file_content?path=${encodeURIComponent(filePath)}`);
+            if (!response.ok) {
+                throw new Error('无法加载文件内容');
+            }
+            const data = await response.json();
+            const content = data.content;
+            userInput.value = `${filePath}:\n\`\`\`\n${content}\n\`\`\`\n` + userInput.value;
+            adjustTextareaHeight();
+
+            // 将光标移动到输入框的末尾
+            userInput.focus();
+            userInput.setSelectionRange(userInput.value.length, userInput.value.length);
+        } catch (error) {
+            console.error('加载文件内容时出错:', error);
+            userInput.value = '加载文件内容时出错';
         }
     }
 

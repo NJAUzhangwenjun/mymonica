@@ -2,15 +2,35 @@ document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const filePath = urlParams.get('path');
     const codeEditorContainer = document.getElementById('code-editor');
+    const fileNameElement = document.getElementById('file-name');
+  	  fileNameElement.textContent = filePath.split('/').pop(); // 显示文件名，不包括路径
     
     let mode = 'text/plain';
-    if (filePath.endsWith('.py')) {
-        mode = 'text/x-python';
-    } else if (filePath.endsWith('.js')) {
-        mode = 'text/javascript';
-    } else if (filePath.endsWith('.html')) {
-        mode = 'text/html';
-    }
+    const fileExtension = filePath.split('.').pop().toLowerCase();
+    
+    const modeMap = {
+        'py': 'text/x-python',
+        'js': 'text/javascript',
+        'html': 'text/html',
+        'css': 'text/css',
+        'java': 'text/x-java',
+        'cpp': 'text/x-c++src',
+        'c': 'text/x-csrc',
+        'php': 'application/x-httpd-php',
+        'rb': 'text/x-ruby',
+        'go': 'text/x-go',
+        'rust': 'text/x-rustsrc',
+        'sql': 'text/x-sql',
+        'xml': 'application/xml',
+        'md': 'text/x-markdown',
+        'json': 'application/json',
+        'yaml': 'text/x-yaml',
+        'sh': 'text/x-sh',
+        'typescript': 'text/typescript',
+        'swift': 'text/x-swift'
+    };
+
+    mode = modeMap[fileExtension] || mode;
 
     const codeEditor = CodeMirror(codeEditorContainer, {
         mode: mode,

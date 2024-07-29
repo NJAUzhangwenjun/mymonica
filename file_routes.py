@@ -146,5 +146,3 @@ def create_file():
         return jsonify({"message": "文件已创建"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-
