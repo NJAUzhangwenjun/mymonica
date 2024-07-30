@@ -2,7 +2,9 @@
 
 MyMonica 是一个强大的AI驱动的编码助手，基于Flask构建，集成了多种先进的语言模型，并提供了直观的文件管理功能。它旨在成为开发者的得力助手，提高编码效率，解答技术难题。
 
-![MyMonica 界面预览](https://github.com/user-attachments/assets/482e3a29-66c8-4cda-bebc-5f988862e8e7)
+<img width="1721" alt="image" src="https://github.com/user-attachments/assets/b37e5ed6-c4b6-4157-a1ee-df489bcb3434">
+
+<img width="1724" alt="image" src="https://github.com/user-attachments/assets/115def36-b77a-4f95-ad5f-8c2c6ad57f9b">
 
 ## 🌟 主要特性
 
